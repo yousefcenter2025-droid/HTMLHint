@@ -1,51 +1,2541 @@
----
-title: Getting Started
-description: How to set up HTMLHint in your project by adding it as a dev dependency and configuring it.
----
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>برنامج إدارة الصيانة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- إصدار محدث من Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --gray: #95a5a6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* الشريط الجانبي */
+        .sidebar {
+            width: 250px;
+            background: var(--primary);
+            color: white;
+            transition: all 0.3s;
+            box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+        
+        .sidebar-menu ul {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .sidebar-menu li:hover {
+            background: rgba(255, 255, 255, 0.1);
+            padding-right: 25px;
+        }
+        
+        .sidebar-menu li.active {
+            background: var(--secondary);
+            border-right: 4px solid white;
+        }
+        
+        .sidebar-menu a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-menu i {
+            margin-left: 10px;
+            font-size: 1.2rem;
+        }
+        
+        /* المحتوى الرئيسي */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .header h1 {
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-left: 10px;
+            background: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        /* البطاقات الإحصائية */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 15px;
+            font-size: 1.8rem;
+            color: white;
+        }
+        
+        .stat-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .stat-info p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .bg-primary { background: var(--primary); }
+        .bg-success { background: var(--success); }
+        .bg-warning { background: var(--warning); }
+        .bg-danger { background: var(--danger); }
+        
+        /* القوائم */
+        .content-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section-header h2 {
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .btn i {
+            margin-left: 5px;
+        }
+        
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        /* القوائم */
+        .task-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .task-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .task-item:last-child {
+            border-bottom: none;
+        }
+        
+        .task-info {
+            flex: 1;
+        }
+        
+        .task-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .task-details {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .task-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-ready {
+            background: #e8f5e9;
+            color: var(--success);
+        }
+        
+        .status-pending {
+            background: #fff3e0;
+            color: var(--warning);
+        }
+        
+        .status-in-progress {
+            background: #e3f2fd;
+            color: var(--secondary);
+        }
+        
+        .status-completed {
+            background: #d1e7dd;
+            color: var(--success);
+        }
+        
+        /* الفلاتر والبحث */
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .filter-group select, .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-width: 150px;
+        }
+        
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 10px 40px 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        /* التبويبات */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--secondary);
+            color: var(--secondary);
+            font-weight: 600;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* الرسم البياني */
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        
+        .chart-placeholder {
+            font-size: 4rem;
+            color: var(--gray);
+            margin-bottom: 15px;
+        }
+        
+        /* الأيقونات التفاعلية */
+        .action-icons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .icon-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .icon-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .icon-view {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .icon-edit {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .icon-delete {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .icon-complete {
+            background: var(--success);
+            color: white;
+        }
+        
+        /* الإشعارات */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .notification-icon {
+            position: relative;
+        }
+        
+        /* التجاوب مع الشاشات المختلفة */
+        @media (max-width: 992px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .sidebar-menu ul {
+                display: flex;
+                overflow-x: auto;
+            }
+            
+            .sidebar-menu li {
+                border-bottom: none;
+                border-left: 1px solid rgba(255, 255, 255, 0.1);
+                white-space: nowrap;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                flex-direction: column;
+            }
+            
+            .task-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .action-icons {
+                margin-top: 10px;
+                flex-direction: row;
+            }
+        }
+        
+        /* نمط النماذج */
+        .modal-content {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .modal-header {
+            background: var(--primary);
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        /* زر إعادة التعيين */
+        .reset-btn {
+            background: var(--danger);
+            color: white;
+            margin-right: 10px;
+        }
+        
+        /* الطباعة */
+        @media print {
+            .sidebar, .header, .tabs, .section-header, .filters, .btn, .stat-card {
+                display: none;
+            }
+            .main-content {
+                padding: 0;
+            }
+            .content-section {
+                box-shadow: none;
+                padding: 0;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            table, th, td {
+                border: 1px solid #000;
+            }
+            th, td {
+                padding: 8px;
+                text-align: right;
+            }
+        }
+        
+        /* مؤشر الأداء */
+        .performance-indicator {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .performance-bar {
+            height: 100%;
+            background: var(--success);
+            border-radius: 5px;
+            transition: width 0.5s;
+        }
+        
+        .performance-text {
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        /* مخصص للمواد المستخدمة */
+        .materials-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .material-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .material-item:last-child {
+            border-bottom: none;
+        }
+        
+        .material-name {
+            font-weight: 600;
+        }
+        
+        .material-quantity {
+            color: var(--primary);
+        }
+        
+        /* مخصص للصور */
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .image-preview:hover {
+            transform: scale(1.02);
+        }
+        
+        /* مخصص للخطوط */
+        .line-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .line-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .line-item:last-child {
+            border-bottom: none;
+        }
+        
+        /* تحسينات على المهام المنتهية */
+        .completed-task {
+            background-color: #f8f9fa;
+        }
+        
+        .completed-task .task-name {
+            color: var(--success);
+        }
+        
+        .completed-task .task-details {
+            color: #6c757d;
+        }
+        
+        /* إشعار الاتصال */
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: white;
+            font-weight: 600;
+            z-index: 9999;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .connection-success {
+            background-color: var(--success);
+        }
+        
+        .connection-error {
+            background-color: var(--danger);
+        }
+        
+        .connection-warning {
+            background-color: var(--warning);
+        }
+        
+        /* مؤشر التحميل */
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* مؤشر رفع الصورة */
+        .upload-progress {
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .upload-status {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+        
+        /* زر اختبار */
+        .test-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .test-result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .test-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .test-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <!-- صفحة التطبيق الرئيسية -->
+    <div id="app-container" class="container">
+        <!-- الشريط الجانبي -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-tools"></i> برنامج الصيانة</h2>
+                <p>إدارة أعمال الصيانة</p>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li class="active" data-tab="dashboard">
+                        <a href="#" onclick="showTab('dashboard')">
+                            <i class="fas fa-home"></i> الرئيسية
+                        </a>
+                    </li>
+                    <li data-tab="tasks">
+                        <a href="#" onclick="showTab('tasks')">
+                            <i class="fas fa-tasks"></i> جميع المهام
+                        </a>
+                    </li>
+                    <li data-tab="test">
+                        <a href="#" onclick="showTab('test')">
+                            <i class="fas fa-vial"></i> اختبار الصور
+                        </a>
+                    </li>
+                    <li data-tab="map">
+                        <a href="#" onclick="showTab('map')">
+                            <i class="fas fa-map-marker-alt"></i> الخرائط
+                        </a>
+                    </li>
+                    <li data-tab="reports">
+                        <a href="#" onclick="showTab('reports')">
+                            <i class="fas fa-chart-bar"></i> التقارير
+                        </a>
+                    </li>
+                    <li data-tab="teams">
+                        <a href="#" onclick="showTab('teams')">
+                            <i class="fas fa-users"></i> الفرق
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- المحتوى الرئيسي -->
+        <div class="main-content">
+            <div class="header">
+                <h1><i class="fas fa-tachometer-alt"></i> لوحة تحكم أعمال الصيانة</h1>
+                <div class="user-info">
+                    <div class="notification-icon" style="margin-right: 15px; position: relative;">
+                        <i class="fas fa-bell fa-lg" style="color: var(--primary); cursor: pointer;" onclick="showNotifications()"></i>
+                        <span class="notification-badge" id="notification-badge">0</span>
+                    </div>
+                    <div class="user-avatar" onclick="showUserProfile()" style="cursor: pointer;">
+                        <i class="fas fa-user-circle fa-2x" style="color: var(--secondary);"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- البطاقات الإحصائية -->
+            <div class="stats-cards">
+                <div class="stat-card" onclick="showAllTasks()">
+                    <div class="stat-icon bg-primary">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="total-tasks">0</h3>
+                        <p>إجمالي المهام</p>
+                    </div>
+                </div>
+                <div class="stat-card" onclick="showReadyTasks()">
+                    <div class="stat-icon bg-success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="ready-tasks">0</h3>
+                        <p>مهمة جاهزة</p>
+                    </div>
+                </div>
+                <div class="stat-card" onclick="showInProgressTasks()">
+                    <div class="stat-icon bg-warning">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="progress-tasks">0</h3>
+                        <p>قيد التنفيذ</p>
+                    </div>
+                </div>
+                <div class="stat-card" onclick="showCompletedTasks()">
+                    <div class="stat-icon bg-success">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="completed-tasks">0</h3>
+                        <p>مهمة مكتملة</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- التبويبات -->
+            <div class="tabs">
+                <div class="tab active" data-tab="tasks" onclick="showTabContent('tasks')">المهام الحالية</div>
+                <div class="tab" data-tab="test" onclick="showTabContent('test')">اختبار الصور</div>
+                <div class="tab" data-tab="reports" onclick="showTabContent('reports')">التقارير</div>
+                <div class="tab" data-tab="map" onclick="showTabContent('map')">الخريطة</div>
+                <div class="tab" data-tab="calendar" onclick="showTabContent('calendar')">الجدول الزمني</div>
+            </div>
+            
+            <!-- محتوى التبويب: المهام -->
+            <div class="tab-content active" id="tasks-tab">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-list-check"></i> أعمال الصيانة الحالية</h2>
+                        <div>
+                            <button class="btn btn-primary" onclick="showAddTaskModal()">
+                                <i class="fas fa-plus"></i> إضافة مهمة جديدة
+                            </button>
+                            <button class="btn reset-btn" onclick="resetAllData()">
+                                <i class="fas fa-redo"></i> إعادة تعيين البيانات
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- البحث -->
+                    <div class="search-box">
+                        <input type="text" id="search-input" placeholder="ابحث في المهام (بالاسم، الهاتف، الموقع، المشكلة)..." oninput="performSearch()">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    
+                    <!-- الفلاتر -->
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label for="status"><i class="fas fa-filter"></i> الحالة</label>
+                            <select id="status" onchange="filterTable()">
+                                <option value="all">جميع الحالات</option>
+                                <option value="ready">جاهز</option>
+                                <option value="in-progress">قيد التنفيذ</option>
+                                <option value="pending">معلق</option>
+                                <option value="completed">مكتمل</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="location"><i class="fas fa-map-pin"></i> الموقع</label>
+                            <select id="location" onchange="filterTable()">
+                                <option value="all">جميع المواقع</option>
+                                <option value="abu-qamrah">أبو القمرة</option>
+                                <option value="sharfa">الشرفا</option>
+                                <option value="namous">الناموس</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="problem"><i class="fas fa-wrench"></i> وصف العمل </label>
+                            <select id="problem" onchange="filterTable()">
+                                <option value="all">جميع المشاكل</option>
+                                <option value="broken-line">خط مكسور</option>
+                                <option value="clogged-line">تحشير في الخط</option>
+                                <option value="meter-issue">مشكلة في العداد</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="date"><i class="fas fa-calendar"></i> التاريخ</label>
+                            <input type="date" id="date" onchange="filterTable()">
+                        </div>
+                    </div>
+                    
+                    <!-- القائمة -->
+                    <div id="task-list-container">
+                        <div class="loader" id="tasks-loader" style="display: block;"></div>
+                        <ul class="task-list" id="task-list" style="display: none;">
+                            <!-- Tasks will be loaded here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- محتوى التبويب: اختبار الصور -->
+            <div class="tab-content" id="test-tab">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-vial"></i> اختبار رفع الصور</h2>
+                    </div>
+                    
+                    <div class="test-section">
+                        <h4>اختبار اتصال imgbb API</h4>
+                        <button class="btn btn-primary" onclick="testImgbbConnection()">
+                            <i class="fas fa-plug"></i> اختبار الاتصال
+                        </button>
+                        <div id="test-result" class="test-result" style="display: none;"></div>
+                    </div>
+                    
+                    <div class="test-section">
+                        <h4>رفع صورة تجريبية</h4>
+                        <input type="file" id="test-image" accept="image/*" class="form-control" style="margin-bottom: 10px;">
+                        <button class="btn btn-success" onclick="uploadTestImage()">
+                            <i class="fas fa-upload"></i> رفع الصورة
+                        </button>
+                        <div id="upload-result" class="test-result" style="display: none;"></div>
+                        <img id="test-preview" class="image-preview" style="display: none; margin-top: 10px;">
+                    </div>
+                    
+                    <div class="test-section">
+                        <h4>التحقق من الصور المحفوظة</h4>
+                        <button class="btn btn-warning" onclick="checkSavedImages()">
+                            <i class="fas fa-search"></i> التحقق من الصور
+                        </button>
+                        <div id="saved-images" style="margin-top: 10px;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- محتوى التبويب: التقارير -->
+            <div class="tab-content" id="reports-tab">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-chart-pie"></i> تقارير الصيانة</h2>
+                        <div>
+                            <button class="btn btn-primary" onclick="showReports()">
+                                <i class="fas fa-chart-bar"></i> عرض التقارير
+                            </button>
+                            <button class="btn btn-success" onclick="exportReports('excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                            <button class="btn btn-danger" onclick="exportReports('pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn btn-warning" onclick="exportReports('word')">
+                                <i class="fas fa-file-word"></i> Word
+                            </button>
+                            <button class="btn btn-primary" onclick="printReports()">
+                                <i class="fas fa-print"></i> طباعة
+                            </button>
+                            <button class="btn reset-btn" onclick="resetReports()">
+                                <i class="fas fa-redo"></i> إعادة تعيين
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="report-from-date"><i class="fas fa-calendar-alt"></i> من التاريخ</label>
+                                <input type="date" class="form-control" id="report-from-date">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="report-to-date"><i class="fas fa-calendar-alt"></i> إلى التاريخ</label>
+                                <input type="date" class="form-control" id="report-to-date">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-placeholder" onclick="showChart()" style="cursor: pointer;">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <p>انقر على الرسم البياني لعرضه</p>
+                    </div>
+                    
+                    <div class="stats-cards" style="margin-top: 30px;">
+                        <div class="stat-card" onclick="showProblemStats('broken-lines')">
+                            <div class="stat-icon bg-danger">
+                                <i class="fas fa-burst"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="broken-lines-percentage">0%</h3>
+                                <p>خطوط مكسورة</p>
+                                <div class="performance-indicator">
+                                    <div class="performance-bar" id="broken-lines-bar" style="width: 0%"></div>
+                                </div>
+                                <div class="performance-text" id="broken-lines-text">مؤشر الأداء: 0%</div>
+                            </div>
+                        </div>
+                        <div class="stat-card" onclick="showProblemStats('clogged-lines')">
+                            <div class="stat-icon bg-warning">
+                                <i class="fas fa-filter"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="clogged-lines-percentage">0%</h3>
+                                <p>تحشير في الخطوط</p>
+                                <div class="performance-indicator">
+                                    <div class="performance-bar" id="clogged-lines-bar" style="width: 0%"></div>
+                                </div>
+                                <div class="performance-text" id="clogged-lines-text">مؤشر الأداء: 0%</div>
+                            </div>
+                        </div>
+                        <div class="stat-card" onclick="showProblemStats('meter-issues')">
+                            <div class="stat-icon bg-primary">
+                                <i class="fas fa-gauge-high"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="meter-issues-percentage">0%</h3>
+                                <p>مشاكل في العدادات</p>
+                                <div class="performance-indicator">
+                                    <div class="performance-bar" id="meter-issues-bar" style="width: 0%"></div>
+                                </div>
+                                <div class="performance-text" id="meter-issues-text">مؤشر الأداء: 0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+    <!-- إشعار الاتصال -->
+    <div id="connection-status" class="connection-status"></div>
 
-1\. Use npm or yarn to install HTMLHint:
+    <!-- نموذج إضافة مهمة -->
+    <div class="modal fade" id="addTaskModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-plus-circle"></i> إضافة مهمة جديدة</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="taskForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="taskName"><i class="fas fa-user"></i> الاسم *</label>
+                                    <input type="text" class="form-control" id="taskName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="taskPhone"><i class="fas fa-phone"></i> رقم الهاتف</label>
+                                    <input type="text" class="form-control" id="taskPhone">
+                                </div>
+                                <div class="form-group">
+                                    <label for="taskLocation"><i class="fas fa-location-dot"></i> الموقع *</label>
+                                    <input type="text" class="form-control" id="taskLocation" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="taskProblem"><i class="fas fa-triangle-exclamation"></i> وصف العمل *</label>
+                                    <textarea class="form-control" id="taskProblem" rows="3" required></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="taskImage"><i class="fas fa-image"></i> صورة الموقع</label>
+                                    <input type="file" class="form-control" id="taskImage" accept="image/*">
+                                    <div class="upload-progress" id="upload-progress">
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                        <div class="upload-status">جاري الرفع...</div>
+                                    </div>
+                                    <img id="imagePreview" class="image-preview" style="display: none;" onclick="openImageInNewTab(this.src)">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="taskLineSize"><i class="fas fa-ruler"></i> قطر الخط</label>
+                                    <select class="form-control" id="taskLineSize">
+                                        <option value="">اختر قطر الخط</option>
+                                        <option value="2">2"</option>
+                                        <option value="63">63 ملم</option>
+                                        <option value="110">110 ملم</option>
+                                        <option value="8">8"</option>
+                                        <option value="116">116 ملم</option>
+                                        <option value="1">1"</option>
+                                        <option value="32">32 ملم</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="taskLineType"><i class="fas fa-shapes"></i> نوع الخط</label>
+                                    <select class="form-control" id="taskLineType">
+                                        <option value="">اختر نوع الخط</option>
+                                        <option value="plastic">بلاستيكي</option>
+                                        <option value="metal">معدي</option>
+                                        <option value="cement">أسمنت</option>
+                                        <option value="other">آخر</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="materials-section">
+                                    <h5><i class="fas fa-tools"></i> المواد المستخدمة</h5>
+                                    <div id="materialsContainer">
+                                        <div class="material-item">
+                                            <input type="text" class="form-control" placeholder="اسم المادة" style="width: 60%; display: inline-block;">
+                                            <input type="number" class="form-control" placeholder="الكمية" style="width: 30%; display: inline-block; margin-right: 10px;">
+                                            <button type="button" class="btn btn-sm btn-danger" onclick="this.parentElement.remove()">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="addMaterialField()">
+                                        <i class="fas fa-plus"></i> إضافة مادة
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> إلغاء
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="saveTask()">
+                        <i class="fas fa-save"></i> حفظ المهمة
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<Tabs>
-  <TabItem label="npm">
-`npm install --save-dev htmlhint`
-  </TabItem>
-  <TabItem label="yarn">
-`yarn add --dev htmlhint`
-  </TabItem>
-</Tabs>
+    <!-- نموذج تفاصيل المهمة -->
+    <div class="modal fade" id="taskDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-info-circle"></i> تفاصيل المهمة</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label><i class="fas fa-user"></i> الاسم</label>
+                                <p id="detailName"></p>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-phone"></i> رقم الهاتف</label>
+                                <p id="detailPhone"></p>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-location-dot"></i> الموقع</label>
+                                <p id="detailLocation"></p>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-triangle-exclamation"></i> وصف العمل </label>
+                                <p id="detailProblem"></p>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-calendar-days"></i> التاريخ</label>
+                                <p id="detailDate"></p>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-circle-info"></i> الحالة</label>
+                                <p id="detailStatus"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label><i class="fas fa-image"></i> صورة الموقع</label>
+                                <img id="detailImage" class="image-preview" style="display: none;" onclick="openImageInNewTab(this.src)">
+                                <p id="image-url" style="font-size: 0.8rem; color: var(--gray); word-break: break-all; margin-top: 5px;"></p>
+                            </div>
+                            
+                            <div class="line-section">
+                                <h5><i class="fas fa-ruler"></i> معلومات الخط</h5>
+                                <div class="line-item">
+                                    <div class="line-name">قطر الخط</div>
+                                    <div class="line-value" id="detailLineSize"></div>
+                                </div>
+                                <div class="line-item">
+                                    <div class="line-name">نوع الخط</div>
+                                    <div class="line-value" id="detailLineType"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="materials-section">
+                                <h5><i class="fas fa-tools"></i> المواد المستخدمة</h5>
+                                <div id="detailMaterials">
+                                    <!-- سيتم ملؤه من خلال JavaScript -->
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <button class="btn btn-success" onclick="completeTask()" id="completeTaskBtn">
+                                    <i class="fas fa-check-circle"></i> تمت الصيانة
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> إغلاق
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-2\. Create a `.htmlhintrc` configuration file in the root of your project with `htmlhint --init`. This will create a file with default rules. You can customize it as needed. For example, you can use the following configuration to enforce some common best practices:
+    <!-- نموذج إكمال المهمة -->
+    <div class="modal fade" id="completeTaskModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-check-circle"></i> إكمال المهمة</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="completeTaskForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="completionDate"><i class="fas fa-calendar-check"></i> تاريخ الإكمال</label>
+                                    <input type="date" class="form-control" id="completionDate" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="completionNotes"><i class="fas fa-sticky-note"></i> ملاحظات الإكمال</label>
+                                    <textarea class="form-control" id="completionNotes" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="materials-section">
+                                    <h5><i class="fas fa-tools"></i> المواد المستخدمة</h5>
+                                    <div id="completionMaterialsContainer">
+                                        <div class="material-item">
+                                            <input type="text" class="form-control" placeholder="اسم المادة" style="width: 60%; display: inline-block;">
+                                            <input type="number" class="form-control" placeholder="الكمية" style="width: 30%; display: inline-block; margin-right: 10px;">
+                                            <button type="button" class="btn btn-sm btn-danger" onclick="this.parentElement.remove()">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="addCompletionMaterialField()">
+                                        <i class="fas fa-plus"></i> إضافة مادة
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> إلغاء
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="saveCompletedTask()">
+                        <i class="fas fa-save"></i> حفظ الإكمال
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-```json
-{
-  "alt-require": true,
-  "attr-lowercase": true,
-  "attr-no-duplication": true,
-  "attr-value-double-quotes": true,
-  "button-type-require": true,
-  "doctype-first": true,
-  "doctype-html5": true,
-  "frame-title-require": true,
-  "h1-require": true,
-  "html-lang-require": true,
-  "id-unique": true,
-  "main-require": true,
-  "meta-charset-require": true,
-  "meta-description-require": true,
-  "meta-viewport-require": true,
-  "spec-char-escape": true,
-  "src-not-empty": true,
-  "tag-no-obsolete": true,
-  "tag-pair": true,
-  "tagname-lowercase": true,
-  "title-require": true
-}
-```
+    <!-- نموذج تعديل المهمة -->
+    <div class="modal fade" id="editTaskModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-edit"></i> تعديل المهمة</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editTaskForm">
+                        <input type="hidden" id="editTaskId">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="editTaskName"><i class="fas fa-user"></i> الاسم *</label>
+                                    <input type="text" class="form-control" id="editTaskName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editTaskPhone"><i class="fas fa-phone"></i> رقم الهاتف</label>
+                                    <input type="text" class="form-control" id="editTaskPhone">
+                                </div>
+                                <div class="form-group">
+                                    <label for="editTaskLocation"><i class="fas fa-location-dot"></i> الموقع *</label>
+                                    <input type="text" class="form-control" id="editTaskLocation" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editTaskProblem"><i class="fas fa-triangle-exclamation"></i> وصف العمل *</label>
+                                    <textarea class="form-control" id="editTaskProblem" rows="3" required></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="editTaskImage"><i class="fas fa-image"></i> صورة الموقع</label>
+                                    <input type="file" class="form-control" id="editTaskImage" accept="image/*">
+                                    <div class="upload-progress" id="edit-upload-progress">
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                        <div class="upload-status">جاري الرفع...</div>
+                                    </div>
+                                    <img id="editImagePreview" class="image-preview" style="display: none;" onclick="openImageInNewTab(this.src)">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="editTaskLineSize"><i class="fas fa-ruler"></i> قطر الخط</label>
+                                    <select class="form-control" id="editTaskLineSize">
+                                        <option value="">اختر قطر الخط</option>
+                                        <option value="2">2"</option>
+                                        <option value="63">63 ملم</option>
+                                        <option value="110">110 ملم</option>
+                                        <option value="8">8"</option>
+                                        <option value="116">116 ملم</option>
+                                        <option value="1">1"</option>
+                                        <option value="32">32 ملم</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="editTaskLineType"><i class="fas fa-shapes"></i> نوع الخط</label>
+                                    <select class="form-control" id="editTaskLineType">
+                                        <option value="">اختر نوع الخط</option>
+                                        <option value="plastic">بلاستيكي</option>
+                                        <option value="metal">معدي</option>
+                                        <option value="cement">أسمنت</option>
+                                        <option value="other">آخر</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="materials-section">
+                                    <h5><i class="fas fa-tools"></i> المواد المستخدمة</h5>
+                                    <div id="editMaterialsContainer">
+                                        <!-- سيتم ملؤه من خلال JavaScript -->
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="addEditMaterialField()">
+                                        <i class="fas fa-plus"></i> إضافة مادة
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> إلغاء
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="updateTask()">
+                        <i class="fas fa-save"></i> حفظ التعديلات
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-3\. Run HTMLHint on, for example, all the HTML files in your project:
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // إعدادات Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJjFKj9wOrWDrbkivzb2ODTx8staOCsz0",
+            authDomain: "pipe-fixed.firebaseapp.com",
+            projectId: "pipe-fixed",
+            storageBucket: "pipe-fixed.firebasestorage.app",
+            messagingSenderId: "906802208370",
+            appId: "1:906802208370:web:313fd7bd9e9f9f2e4d6ceb",
+            measurementId: "G-CF9JMVCXE9"
+        };
 
-```shell
-npx htmlhint "**/*.html"
-```
+        // تهيئة Firebase مع معالجة الأخطاء
+        let db;
+        try {
+            console.log('🔄 جاري تهيئة Firebase...');
+            const app = firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            console.log('✅ تم تهيئة Firebase بنجاح');
+        } catch (error) {
+            console.error('❌ خطأ في تهيئة Firebase:', error);
+            if (error.code === 'app/duplicate-app') {
+                console.log('⚠️ تطبيق Firebase موجود مسبقاً، جاري استخدامه...');
+                db = firebase.app().firestore();
+            } else {
+                showConnectionStatus(`فشل تهيئة التطبيق: ${error.message}`, false);
+            }
+        }
+
+        // متغيرات عامة
+        let tasks = [];
+        let currentTaskId = null;
+        
+        // إعدادات API لـ imgbb
+        const IMGBB_API_KEY = 'a3349c45ed614e9ed80781b349bee9d8';
+        const IMGBB_UPLOAD_URL = 'https://api.imgbb.com/1/upload';
+        
+        // إظهار رسالة الاتصال
+        function showConnectionStatus(message, isSuccess, isWarning = false) {
+            const statusElement = document.getElementById('connection-status');
+            statusElement.textContent = message;
+            
+            statusElement.classList.remove('connection-success', 'connection-error', 'connection-warning');
+            
+            if (isWarning) {
+                statusElement.classList.add('connection-warning');
+            } else if (isSuccess) {
+                statusElement.classList.add('connection-success');
+            } else {
+                statusElement.classList.add('connection-error');
+            }
+            
+            statusElement.style.display = 'block';
+            
+            setTimeout(() => {
+                statusElement.style.display = 'none';
+            }, 5000);
+        }
+        
+        // فحص اتصال Firebase
+        async function checkFirebaseConnection() {
+            if (!db) {
+                return false;
+            }
+            
+            try {
+                console.log('🔍 فحص اتصال Firebase...');
+                const result = await db.collection('tasks').limit(1).get();
+                console.log('✅ اتصال Firebase نشط');
+                return true;
+            } catch (error) {
+                console.error('❌ فشل اتصال Firebase:', error);
+                return false;
+            }
+        }
+        
+        // تحميل المهام من Firestore
+        async function loadTasks() {
+            if (!db) {
+                showConnectionStatus('❌ قاعدة البيانات غير مهيأة', false);
+                return;
+            }
+            
+            document.getElementById('tasks-loader').style.display = 'block';
+            document.getElementById('task-list').style.display = 'none';
+            
+            console.log('🚀 بدء تحميل المهام من Firebase...');
+            
+            try {
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error('انتهت مهلة الاتصال بقاعدة البيانات')), 10000);
+                });
+                
+                const tasksPromise = db.collection('tasks').get();
+                const querySnapshot = await Promise.race([tasksPromise, timeoutPromise]);
+                
+                console.log('✅ تم استلام البيانات:', querySnapshot.size, 'مستند');
+                
+                tasks = [];
+                querySnapshot.forEach(doc => {
+                    const taskData = doc.data();
+                    console.log('📄 المستند:', doc.id, taskData);
+                    tasks.push({
+                        id: doc.id,
+                        ...taskData
+                    });
+                });
+                
+                renderTaskList(tasks);
+                updateStats();
+                updatePerformanceIndicators();
+                updateNotificationBadge();
+                
+                document.getElementById('tasks-loader').style.display = 'none';
+                document.getElementById('task-list').style.display = 'block';
+                
+                showConnectionStatus(`تم تحميل ${tasks.length} مهمة بنجاح`, true);
+                
+            } catch (error) {
+                console.error('❌ Error loading tasks:', error);
+                
+                document.getElementById('tasks-loader').style.display = 'none';
+                document.getElementById('task-list').innerHTML = `
+                    <li class="task-item" style="text-align: center; color: var(--danger); padding: 30px;">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i> 
+                        <h4>فشل في تحميل البيانات</h4>
+                        <p>${error.message}</p>
+                        <button class="btn btn-warning mt-3" onclick="loadTasks()">
+                            <i class="fas fa-redo"></i> إعادة المحاولة
+                        </button>
+                    </li>
+                `;
+                document.getElementById('task-list').style.display = 'block';
+                
+                showConnectionStatus(`خطأ في تحميل المهام: ${error.message}`, false);
+            }
+        }
+        
+        // البحث في المهام
+        function performSearch() {
+            const searchText = document.getElementById('search-input').value.toLowerCase();
+            const filteredTasks = tasks.filter(task => 
+                task.name.toLowerCase().includes(searchText) || 
+                (task.phone && task.phone.includes(searchText)) ||
+                task.location.toLowerCase().includes(searchText) ||
+                task.problem.toLowerCase().includes(searchText)
+            );
+            renderTaskList(filteredTasks);
+        }
+        
+        // اختبار اتصال imgbb API
+        async function testImgbbConnection() {
+            const resultDiv = document.getElementById('test-result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'test-result';
+            resultDiv.innerHTML = '<div class="loader"></div> جاري اختبار الاتصال...';
+            
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = 100;
+                canvas.height = 100;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#3498db';
+                ctx.fillRect(0, 0, 100, 100);
+                ctx.fillStyle = 'white';
+                ctx.font = '20px Arial';
+                ctx.fillText('TEST', 25, 55);
+                
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                
+                const formData = new FormData();
+                formData.append('key', IMGBB_API_KEY);
+                formData.append('image', blob);
+                formData.append('name', 'test-image-' + Date.now());
+                
+                const response = await fetch(IMGBB_UPLOAD_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.className = 'test-result test-success';
+                    resultDiv.innerHTML = `
+                        <strong>✅ نجح الاتصال بـ imgbb API</strong><br>
+                        <strong>رابط الصورة:</strong> <a href="${data.data.url}" target="_blank">${data.data.url}</a><br>
+                        <strong>حجم الصورة:</strong> ${data.data.size} bytes<br>
+                        <strong>معرف الصورة:</strong> ${data.data.id}<br>
+                        <strong>وقت الرفع:</strong> ${new Date().toLocaleString('ar-SA')}
+                    `;
+                } else {
+                    throw new Error(data.error?.message || 'فشل الرفع');
+                }
+            } catch (error) {
+                resultDiv.className = 'test-result test-error';
+                resultDiv.innerHTML = `
+                    <strong>❌ فشل الاتصال بـ imgbb API</strong><br>
+                    <strong>الخطأ:</strong> ${error.message}<br>
+                    <strong>الوقت:</strong> ${new Date().toLocaleString('ar-SA')}<br>
+                    <strong>اقتراح:</strong> تحقق من مفتاح API والاتصال بالإنترنت
+                `;
+            }
+        }
+        
+        // رفع صورة تجريبية
+        async function uploadTestImage() {
+            const fileInput = document.getElementById('test-image');
+            const resultDiv = document.getElementById('upload-result');
+            const preview = document.getElementById('test-preview');
+            
+            if (!fileInput.files[0]) {
+                showConnectionStatus('الرجاء اختيار صورة أولاً', false, true);
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'test-result';
+            resultDiv.innerHTML = '<div class="loader"></div> جاري رفع الصورة...';
+            
+            try {
+                const formData = new FormData();
+                formData.append('key', IMGBB_API_KEY);
+                formData.append('image', file);
+                formData.append('name', 'test-' + file.name);
+                
+                const response = await fetch(IMGBB_UPLOAD_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.className = 'test-result test-success';
+                    resultDiv.innerHTML = `
+                        <strong>✅ تم رفع الصورة بنجاح</strong><br>
+                        <strong>رابط الصورة:</strong> <a href="${data.data.url}" target="_blank">${data.data.url}</a><br>
+                        <strong>حجم الصورة:</strong> ${data.data.size} bytes<br>
+                        <strong>الأبعاد:</strong> ${data.data.width}x${data.data.height}<br>
+                        <strong>معرف الصورة:</strong> ${data.data.id}
+                    `;
+                    
+                    preview.src = data.data.url;
+                    preview.style.display = 'block';
+                    
+                    showConnectionStatus('تم رفع الصورة بنجاح', true);
+                } else {
+                    throw new Error(data.error?.message || 'فشل الرفع');
+                }
+            } catch (error) {
+                resultDiv.className = 'test-result test-error';
+                resultDiv.innerHTML = `
+                    <strong>❌ فشل رفع الصورة</strong><br>
+                    <strong>الخطأ:</strong> ${error.message}<br>
+                    <strong>اسم الملف:</strong> ${file.name}<br>
+                    <strong>حجم الملف:</strong> ${file.size} bytes
+                `;
+                
+                showConnectionStatus(`فشل رفع الصورة: ${error.message}`, false);
+            }
+        }
+        
+        // التحقق من الصور المحفوظة
+        async function checkSavedImages() {
+            if (!db) {
+                showConnectionStatus('❌ قاعدة البيانات غير مهيأة', false);
+                return;
+            }
+            
+            const savedImagesDiv = document.getElementById('saved-images');
+            savedImagesDiv.innerHTML = '<div class="loader"></div> جاري التحقق من الصور...';
+            
+            try {
+                const querySnapshot = await db.collection('tasks').get();
+                const tasksWithImages = [];
+                
+                querySnapshot.forEach(doc => {
+                    const task = doc.data();
+                    if (task.image) {
+                        tasksWithImages.push({
+                            id: doc.id,
+                            name: task.name,
+                            imageUrl: task.image
+                        });
+                    }
+                });
+                
+                if (tasksWithImages.length === 0) {
+                    savedImagesDiv.innerHTML = '<p style="color: var(--gray);">لا توجد صور محفوظة</p>';
+                } else {
+                    let html = '<h5>الصور المحفوظة:</h5>';
+                    tasksWithImages.forEach(task => {
+                        html += `
+                            <div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                                <strong>${task.name}</strong> (ID: ${task.id})<br>
+                                <img src="${task.imageUrl}" style="max-width: 150px; margin: 5px 0; border-radius: 5px; cursor: pointer;" 
+                                     onclick="openImageInNewTab('${task.imageUrl}')"
+                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI2RkZCIvPjx0ZXh0IHg9Ijc1IiB5PSI3NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+ZmFpbGVkPC90ZXh0Pjwvc3ZnPg==';"
+                                     title="انقر لفتح الصورة"><br>
+                                <small style="color: var(--gray); word-break: break-all;">${task.imageUrl}</small>
+                            </div>
+                        `;
+                    });
+                    savedImagesDiv.innerHTML = html;
+                }
+                
+                showConnectionStatus(`تم العثور على ${tasksWithImages.length} صور محفوظة`, true);
+            } catch (error) {
+                savedImagesDiv.innerHTML = `<p style="color: var(--danger);">خطأ: ${error.message}</p>`;
+                showConnectionStatus(`خطأ في التحقق من الصور: ${error.message}`, false);
+            }
+        }
+        
+        // فتح الصورة في نافذة جديدة
+        function openImageInNewTab(imageUrl) {
+            if (imageUrl) {
+                window.open(imageUrl, '_blank');
+            }
+        }
+        
+        // رفع الصورة إلى imgbb
+        async function uploadImageToImgbb(file) {
+            console.log('بدء رفع الصورة:', file.name, file.size);
+            
+            const formData = new FormData();
+            formData.append('key', IMGBB_API_KEY);
+            formData.append('image', file);
+            formData.append('name', 'maintenance-' + Date.now());
+            
+            try {
+                const response = await fetch(IMGBB_UPLOAD_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                console.log('استجابة imgbb:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`فشل الاتصال: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('بيانات الاستجابة:', data);
+                
+                if (data.success) {
+                    console.log('تم رفع الصورة بنجاح:', data.data.url);
+                    return data.data.url;
+                } else {
+                    throw new Error(data.error?.message || 'فشل رفع الصورة');
+                }
+            } catch (error) {
+                console.error('خطأ في رفع الصورة:', error);
+                throw error;
+            }
+        }
+        
+        // حفظ المهمة في Firestore
+        async function saveTask() {
+            if (!db) {
+                showConnectionStatus('❌ قاعدة البيانات غير مهيأة', false);
+                return;
+            }
+            
+            const name = document.getElementById('taskName').value.trim();
+            const phone = document.getElementById('taskPhone').value.trim();
+            const location = document.getElementById('taskLocation').value.trim();
+            const problem = document.getElementById('taskProblem').value.trim();
+            
+            // التحقق من الحقول المطلوبة
+            if (!name) {
+                showConnectionStatus('❌ الرجاء إدخال اسم العميل', false);
+                document.getElementById('taskName').focus();
+                return;
+            }
+            if (!location) {
+                showConnectionStatus('❌ الرجاء إدخال الموقع', false);
+                document.getElementById('taskLocation').focus();
+                return;
+            }
+            if (!problem) {
+                showConnectionStatus('❌ الرجاء إدخال وصف المشكلة', false);
+                document.getElementById('taskProblem').focus();
+                return;
+            }
+            
+            const status = 'in-progress';
+            const date = new Date().toISOString().split('T')[0];
+            const lineSize = document.getElementById('taskLineSize').value;
+            const lineType = document.getElementById('taskLineType').value;
+            
+            // جمع المواد المستخدمة
+            const materials = [];
+            const materialItems = document.querySelectorAll('#materialsContainer .material-item');
+            materialItems.forEach(item => {
+                const inputs = item.querySelectorAll('input');
+                const name = inputs[0].value.trim();
+                const quantity = inputs[1].value.trim();
+                if (name && quantity) {
+                    materials.push({ name, quantity });
+                }
+            });
+            
+            // رفع الصورة إذا تم تحديدها
+            let imageUrl = null;
+            const imageInput = document.getElementById('taskImage');
+            if (imageInput.files && imageInput.files[0]) {
+                try {
+                    document.getElementById('upload-progress').style.display = 'block';
+                    const progressBar = document.querySelector('#upload-progress .progress-bar');
+                    const statusText = document.querySelector('#upload-progress .upload-status');
+                    
+                    progressBar.style.width = '50%';
+                    statusText.textContent = 'جاري رفع الصورة إلى imgbb...';
+                    
+                    imageUrl = await uploadImageToImgbb(imageInput.files[0]);
+                    
+                    progressBar.style.width = '100%';
+                    statusText.textContent = 'تم رفع الصورة بنجاح!';
+                    
+                    setTimeout(() => {
+                        document.getElementById('upload-progress').style.display = 'none';
+                        progressBar.style.width = '0%';
+                    }, 2000);
+                    
+                } catch (error) {
+                    showConnectionStatus(`خطأ في رفع الصورة: ${error.message}`, false);
+                    document.getElementById('upload-progress').style.display = 'none';
+                    return;
+                }
+            }
+            
+            const newTask = {
+                name,
+                phone: phone || 'غير متوفر',
+                location,
+                problem,
+                status,
+                date,
+                lineSize: lineSize || 'غير محدد',
+                lineType: lineType || 'غير محدد',
+                materials,
+                image: imageUrl,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            try {
+                console.log('جاري حفظ المهمة:', newTask);
+                await db.collection('tasks').add(newTask);
+                
+                showConnectionStatus('✅ تم حفظ المهمة بنجاح', true);
+                
+                // إعادة تعيين النموذج
+                document.getElementById('taskForm').reset();
+                document.getElementById('imagePreview').style.display = 'none';
+                
+                // إغلاق النموذج
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addTaskModal'));
+                modal.hide();
+                
+                // تحديث قائمة المهام
+                loadTasks();
+                
+            } catch (error) {
+                console.error('Error saving task:', error);
+                showConnectionStatus(`❌ خطأ في حفظ المهمة: ${error.message}`, false);
+            }
+        }
+        
+        // تحديث المهمة في Firestore
+        async function updateTask() {
+            if (!db) {
+                showConnectionStatus('❌ قاعدة البيانات غير مهيأة', false);
+                return;
+            }
+            
+            const taskId = document.getElementById('editTaskId').value;
+            const name = document.getElementById('editTaskName').value.trim();
+            const phone = document.getElementById('editTaskPhone').value.trim();
+            const location = document.getElementById('editTaskLocation').value.trim();
+            const problem = document.getElementById('editTaskProblem').value.trim();
+            const lineSize = document.getElementById('editTaskLineSize').value;
+            const lineType = document.getElementById('editTaskLineType').value;
+            
+            // التحقق من الحقول المطلوبة
+            if (!name || !location || !problem) {
+                showConnectionStatus('❌ الرجاء ملء جميع الحقول المطلوبة', false);
+                return;
+            }
+            
+            // جمع المواد المستخدمة
+            const materials = [];
+            const materialItems = document.querySelectorAll('#editMaterialsContainer .material-item');
+            materialItems.forEach(item => {
+                const inputs = item.querySelectorAll('input');
+                const name = inputs[0].value.trim();
+                const quantity = inputs[1].value.trim();
+                if (name && quantity) {
+                    materials.push({ name, quantity });
+                }
+            });
+            
+            // الحصول على المهمة الحالية
+            const taskDoc = await db.collection('tasks').doc(taskId).get();
+            const taskData = taskDoc.data();
+            
+            // رفع الصورة الجديدة إذا تم تحديدها
+            let imageUrl = taskData.image;
+            const imageInput = document.getElementById('editTaskImage');
+            if (imageInput.files && imageInput.files[0]) {
+                try {
+                    document.getElementById('edit-upload-progress').style.display = 'block';
+                    const progressBar = document.querySelector('#edit-upload-progress .progress-bar');
+                    const statusText = document.querySelector('#edit-upload-progress .upload-status');
+                    
+                    progressBar.style.width = '50%';
+                    statusText.textContent = 'جاري رفع الصورة الجديدة...';
+                    
+                    imageUrl = await uploadImageToImgbb(imageInput.files[0]);
+                    
+                    progressBar.style.width = '100%';
+                    statusText.textContent = 'تم رفع الصورة بنجاح!';
+                    
+                    setTimeout(() => {
+                        document.getElementById('edit-upload-progress').style.display = 'none';
+                        progressBar.style.width = '0%';
+                    }, 2000);
+                    
+                } catch (error) {
+                    showConnectionStatus(`خطأ في رفع الصورة: ${error.message}`, false);
+                    document.getElementById('edit-upload-progress').style.display = 'none';
+                    return;
+                }
+            }
+            
+            const updatedTask = {
+                name,
+                phone: phone || 'غير متوفر',
+                location,
+                problem,
+                lineSize: lineSize || 'غير محدد',
+                lineType: lineType || 'غير محدد',
+                materials,
+                image: imageUrl,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            try {
+                await db.collection('tasks').doc(taskId).update(updatedTask);
+                showConnectionStatus('✅ تم تحديث المهمة بنجاح', true);
+                
+                // إغلاق النموذج
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editTaskModal'));
+                modal.hide();
+                
+                // تحديث قائمة المهام
+                loadTasks();
+            } catch (error) {
+                console.error('Error updating task:', error);
+                showConnectionStatus(`❌ خطأ في تحديث المهمة: ${error.message}`, false);
+            }
+        }
+        
+        // حذف المهمة من Firestore
+        function deleteTask(taskId) {
+            if (!db) {
+                showConnectionStatus('❌ قاعدة البيانات غير مهيأة', false);
+                return;
+            }
+            
+            if (confirm('هل أنت متأكد من حذف هذه المهمة؟')) {
+                db.collection('tasks').doc(taskId).delete()
+                    .then(() => {
+                        showConnectionStatus('✅ تم حذف المهمة بنجاح', true);
+                        loadTasks();
+                    })
+                    .catch(error => {
+                        console.error('Error deleting task:', error);
+                        showConnectionStatus(`❌ خطأ في حذف المهمة: ${error.message}`, false);
+                    });
+            }
+        }
+        
+        // إكمال المهمة في Firestore
+        function saveCompletedTask() {
+            if (!db) {
+                showConnectionStatus('❌ قاعدة البيانات غير مهيأة', false);
+                return;
+            }
+            
+            const completionDate = document.getElementById('completionDate').value;
+            const completionNotes = document.getElementById('completionNotes').value;
+            
+            // جمع المواد المستخدمة
+            const materials = [];
+            const materialItems = document.querySelectorAll('#completionMaterialsContainer .material-item');
+            materialItems.forEach(item => {
+                const inputs = item.querySelectorAll('input');
+                const name = inputs[0].value.trim();
+                const quantity = inputs[1].value.trim();
+                if (name && quantity) {
+                    materials.push({ name, quantity });
+                }
+            });
+            
+            // تحديث المهمة
+            db.collection('tasks').doc(currentTaskId).update({
+                status: 'completed',
+                completionDate,
+                completionNotes,
+                materials,
+                completedAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                showConnectionStatus('✅ تم إكمال المهمة بنجاح', true);
+                
+                // إغلاق النموذج
+                const modal = bootstrap.Modal.getInstance(document.getElementById('completeTaskModal'));
+                modal.hide();
+                
+                // تحديث قائمة المهام
+                loadTasks();
+            })
+            .catch(error => {
+                console.error('Error completing task:', error);
+                showConnectionStatus(`❌ خطأ في إكمال المهمة: ${error.message}`, false);
+            });
+        }
+        
+        // عرض تفاصيل المهمة
+        function showTaskDetails(taskId, type) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            if (type === 'view') {
+                // تعبئة البيانات في النموذج
+                document.getElementById('detailName').textContent = task.name;
+                document.getElementById('detailPhone').textContent = task.phone || 'غير متوفر';
+                document.getElementById('detailLocation').textContent = task.location;
+                document.getElementById('detailProblem').textContent = task.problem;
+                document.getElementById('detailDate').textContent = task.date;
+                document.getElementById('detailStatus').textContent = getStatusText(task.status);
+                
+                // عرض صورة الموقع
+                if (task.image) {
+                    document.getElementById('detailImage').src = task.image;
+                    document.getElementById('detailImage').style.display = 'block';
+                    document.getElementById('image-url').textContent = task.image;
+                } else {
+                    document.getElementById('detailImage').style.display = 'none';
+                    document.getElementById('image-url').textContent = 'لا توجد صورة';
+                }
+                
+                // عرض معلومات الخط
+                document.getElementById('detailLineSize').textContent = task.lineSize || 'غير متوفر';
+                document.getElementById('detailLineType').textContent = task.lineType || 'غير متوفر';
+                
+                // عرض المواد المستخدمة
+                const materialsContainer = document.getElementById('detailMaterials');
+                materialsContainer.innerHTML = '';
+                
+                if (task.materials && task.materials.length > 0) {
+                    task.materials.forEach(material => {
+                        const materialDiv = document.createElement('div');
+                        materialDiv.className = 'material-item';
+                        materialDiv.innerHTML = `
+                            <div class="material-name">${material.name}</div>
+                            <div class="material-quantity">${material.quantity}</div>
+                        `;
+                        materialsContainer.appendChild(materialDiv);
+                    });
+                } else {
+                    materialsContainer.innerHTML = '<p>لا توجد مواد مستخدمة</p>';
+                }
+                
+                // إظهار زر إكمال المهمة فقط إذا لم تكن مكتملة
+                const completeBtn = document.getElementById('completeTaskBtn');
+                if (task.status === 'completed') {
+                    completeBtn.style.display = 'none';
+                } else {
+                    completeBtn.style.display = 'inline-block';
+                    completeBtn.onclick = function() { completeTask(taskId); };
+                }
+                
+                // إظهار النموذج
+                const modal = new bootstrap.Modal(document.getElementById('taskDetailsModal'));
+                modal.show();
+            } else if (type === 'edit') {
+                // تعبئة البيانات في نموذج التعديل
+                document.getElementById('editTaskId').value = task.id;
+                document.getElementById('editTaskName').value = task.name;
+                document.getElementById('editTaskPhone').value = task.phone || '';
+                document.getElementById('editTaskLocation').value = task.location;
+                document.getElementById('editTaskProblem').value = task.problem;
+                document.getElementById('editTaskLineSize').value = task.lineSize || '';
+                document.getElementById('editTaskLineType').value = task.lineType || '';
+                
+                // عرض صورة الموقع
+                if (task.image) {
+                    document.getElementById('editImagePreview').src = task.image;
+                    document.getElementById('editImagePreview').style.display = 'block';
+                } else {
+                    document.getElementById('editImagePreview').style.display = 'none';
+                }
+                
+                // عرض المواد المستخدمة
+                const materialsContainer = document.getElementById('editMaterialsContainer');
+                materialsContainer.innerHTML = '';
+                
+                if (task.materials && task.materials.length > 0) {
+                    task.materials.forEach(material => {
+                        const materialDiv = document.createElement('div');
+                        materialDiv.className = 'material-item';
+                        materialDiv.innerHTML = `
+                            <input type="text" class="form-control" value="${material.name}" placeholder="اسم المادة" style="width: 60%; display: inline-block;">
+                            <input type="number" class="form-control" value="${material.quantity}" placeholder="الكمية" style="width: 30%; display: inline-block; margin-right: 10px;">
+                            <button type="button" class="btn btn-sm btn-danger" onclick="this.parentElement.remove()">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        `;
+                        materialsContainer.appendChild(materialDiv);
+                    });
+                } else {
+                    addEditMaterialField(); // إضافة حقل مادة فارغ
+                }
+                
+                // إظهار نموذج التعديل
+                const modal = new bootstrap.Modal(document.getElementById('editTaskModal'));
+                modal.show();
+            }
+        }
+        
+        // إكمال المهمة
+        function completeTask(taskId) {
+            currentTaskId = taskId;
+            
+            // تعيين تاريخ الإكمال
+            document.getElementById('completionDate').value = new Date().toISOString().split('T')[0];
+            
+            // إظهار نموذج إكمال المهمة
+            const modal = new bootstrap.Modal(document.getElementById('completeTaskModal'));
+            modal.show();
+        }
+        
+        // عرض قائمة المهام
+        function renderTaskList(tasksToRender) {
+            const taskList = document.getElementById('task-list');
+            taskList.innerHTML = '';
+            
+            if (tasksToRender.length === 0) {
+                taskList.innerHTML = '<li class="task-item" style="text-align: center; padding: 20px; color: var(--gray);">لا توجد مهام</li>';
+                return;
+            }
+            
+            tasksToRender.forEach(task => {
+                const taskItem = document.createElement('li');
+                taskItem.className = `task-item ${task.status === 'completed' ? 'completed-task' : ''}`;
+                taskItem.innerHTML = `
+                    <div class="task-info">
+                        <div class="task-name">${task.name}</div>
+                        <div class="task-details">
+                            <span><i class="fas fa-phone"></i> ${task.phone || 'غير متوفر'}</span> | 
+                            <span><i class="fas fa-location-dot"></i> ${task.location}</span> | 
+                            <span><i class="fas fa-triangle-exclamation"></i> ${task.problem}</span> | 
+                            <span><i class="fas fa-calendar-days"></i> ${task.date}</span>
+                        </div>
+                        <span class="task-status status-${task.status}">${getStatusText(task.status)}</span>
+                    </div>
+                    <div class="action-icons">
+                        <div class="icon-btn icon-view" onclick="showTaskDetails('${task.id}', 'view')" title="عرض التفاصيل">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="icon-btn icon-edit" onclick="showTaskDetails('${task.id}', 'edit')" title="تعديل">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div class="icon-btn icon-complete" onclick="completeTask('${task.id}')" title="إكمال المهمة">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="icon-btn icon-delete" onclick="deleteTask('${task.id}')" title="حذف">
+                            <i class="fas fa-trash"></i>
+                        </div>
+                    </div>
+                `;
+                taskList.appendChild(taskItem);
+            });
+        }
+        
+        // تحويل الحالة إلى نص
+        function getStatusText(status) {
+            const statusTexts = {
+                'ready': 'جاهز',
+                'in-progress': 'قيد التنفيذ',
+                'pending': 'معلق',
+                'completed': 'مكتمل'
+            };
+            return statusTexts[status] || status;
+        }
+        
+        // تصفية القائمة
+        function filterTable() {
+            const statusFilter = document.getElementById('status').value;
+            const locationFilter = document.getElementById('location').value;
+            const problemFilter = document.getElementById('problem').value;
+            const dateFilter = document.getElementById('date').value;
+            
+            const filteredTasks = tasks.filter(task => {
+                const statusMatch = statusFilter === 'all' || task.status === statusFilter;
+                const locationMatch = locationFilter === 'all' || task.location === locationFilter;
+                const problemMatch = problemFilter === 'all' || task.problem === problemFilter;
+                const dateMatch = !dateFilter || task.date.includes(dateFilter);
+                
+                return statusMatch && locationMatch && problemMatch && dateMatch;
+            });
+            
+            renderTaskList(filteredTasks);
+        }
+        
+        // تحديث الإحصائيات
+        function updateStats() {
+            document.getElementById('total-tasks').textContent = tasks.length;
+            document.getElementById('ready-tasks').textContent = tasks.filter(t => t.status === 'ready').length;
+            document.getElementById('progress-tasks').textContent = tasks.filter(t => t.status === 'in-progress').length;
+            document.getElementById('completed-tasks').textContent = tasks.filter(t => t.status === 'completed').length;
+        }
+        
+        // تحديث مؤشرات الأداء
+        function updatePerformanceIndicators() {
+            // حساب عدد كل نوع من المشاكل
+            const brokenLines = tasks.filter(t => t.problem.includes('خط مكسور')).length;
+            const cloggedLines = tasks.filter(t => t.problem.includes('تحشير')).length;
+            const meterIssues = tasks.filter(t => t.problem.includes('عداد')).length;
+            
+            const totalTasks = tasks.length;
+            
+            // حساب النسب المئوية
+            const brokenLinesPercentage = totalTasks > 0 ? Math.round((brokenLines / totalTasks) * 100) : 0;
+            const cloggedLinesPercentage = totalTasks > 0 ? Math.round((cloggedLines / totalTasks) * 100) : 0;
+            const meterIssuesPercentage = totalTasks > 0 ? Math.round((meterIssues / totalTasks) * 100) : 0;
+            
+            // تحديث عرض المؤشرات
+            document.getElementById('broken-lines-percentage').textContent = `${brokenLinesPercentage}%`;
+            document.getElementById('clogged-lines-percentage').textContent = `${cloggedLinesPercentage}%`;
+            document.getElementById('meter-issues-percentage').textContent = `${meterIssuesPercentage}%`;
+            
+            // تحديث شريط المؤشر
+            document.getElementById('broken-lines-bar').style.width = `${brokenLinesPercentage}%`;
+            document.getElementById('clogged-lines-bar').style.width = `${cloggedLinesPercentage}%`;
+            document.getElementById('meter-issues-bar').style.width = `${meterIssuesPercentage}%`;
+            
+            // تحديث نص المؤشر
+            document.getElementById('broken-lines-text').textContent = `مؤشر الأداء: ${brokenLinesPercentage}%`;
+            document.getElementById('clogged-lines-text').textContent = `مؤشر الأداء: ${cloggedLinesPercentage}%`;
+            document.getElementById('meter-issues-text').textContent = `مؤشر الأداء: ${meterIssuesPercentage}%`;
+        }
+        
+        // تحديث عداد الإشعارات
+        function updateNotificationBadge() {
+            // حساب عدد المهام المتأخرة أكثر من 3 أيام
+            const delayedTasks = tasks.filter(task => {
+                const taskDate = new Date(task.date);
+                const currentDate = new Date();
+                const diffTime = Math.abs(currentDate - taskDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                return diffDays > 3 && task.status === 'pending';
+            });
+            
+            const badge = document.getElementById('notification-badge');
+            badge.textContent = delayedTasks.length;
+            
+            // إخفاء أو إظهار العلامة حسب عدد المهام
+            if (delayedTasks.length > 0) {
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        
+        // دوال العرض فقط
+        function showTab(tab) {
+            // إخفاء جميع التبويبات
+            document.querySelectorAll('.sidebar-menu li').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // إظهار التبويب المحدد
+            document.querySelector(`.sidebar-menu li[data-tab="${tab}"]`).classList.add('active');
+            
+            // إخفاء محتوى التبويبات
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // إظهار محتوى التبويب المحدد
+            document.getElementById(`${tab}-tab`).classList.add('active');
+            
+            // تحديث التبويبات
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
+        }
+        
+        function showTabContent(tab) {
+            // إخفاء جميع التبويبات
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            // إظهار التبويب المحدد
+            document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
+            document.getElementById(`${tab}-tab`).classList.add('active');
+        }
+
+        function showAllTasks() {
+            filterTable();
+        }
+        
+        function showReadyTasks() {
+            document.getElementById('status').value = 'ready';
+            filterTable();
+        }
+        
+        function showInProgressTasks() {
+            document.getElementById('status').value = 'in-progress';
+            filterTable();
+        }
+        
+        function showCompletedTasks() {
+            document.getElementById('status').value = 'completed';
+            filterTable();
+        }
+        
+        function showReports() {
+            showTabContent('reports');
+        }
+        
+        function showChart() {
+            alert('عرض الرسم البياني');
+        }
+        
+        function showProblemStats(problemType) {
+            const problemNames = {
+                'broken-lines': 'إحصائيات الخطوط المكسورة',
+                'clogged-lines': 'إحصائيات التحشير في الخطوط',
+                'meter-issues': 'إحصائيات مشاكل العدادات'
+            };
+            alert(`عرض ${problemNames[problemType]}`);
+        }
+        
+        function showNotifications() {
+            alert('عرض الإشعارات');
+        }
+        
+        function showUserProfile() {
+            alert('عرض الملف الشخصي');
+        }
+        
+        function filterBy(filterType) {
+            const filterNames = {
+                'status': 'إعدادات الفلترة بالحالة',
+                'location': 'إعدادات الفلترة بالموقع',
+                'problem': 'إعدادات الفلترة بنوع وصف العمل',
+                'date': 'إعدادات الفلترة بالتاريخ'
+            };
+            alert(`جاري تحميل ${filterNames[filterType]}...`);
+        }
+        
+        function showAddTaskModal() {
+            // إعادة تعيين النموذج
+            document.getElementById('taskForm').reset();
+            document.getElementById('imagePreview').style.display = 'none';
+            
+            // إزالة جميع المواد السابقة
+            const materialsContainer = document.getElementById('materialsContainer');
+            materialsContainer.innerHTML = '';
+            addMaterialField(); // إضافة مادة واحدة افتراضية
+            
+            const modal = new bootstrap.Modal(document.getElementById('addTaskModal'));
+            modal.show();
+        }
+        
+        function addMaterialField() {
+            const container = document.getElementById('materialsContainer');
+            const materialDiv = document.createElement('div');
+            materialDiv.className = 'material-item';
+            materialDiv.innerHTML = `
+                <input type="text" class="form-control" placeholder="اسم المادة" style="width: 60%; display: inline-block;">
+                <input type="number" class="form-control" placeholder="الكمية" style="width: 30%; display: inline-block; margin-right: 10px;">
+                <button type="button" class="btn btn-sm btn-danger" onclick="this.parentElement.remove()">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            container.appendChild(materialDiv);
+        }
+        
+        function addCompletionMaterialField() {
+            const container = document.getElementById('completionMaterialsContainer');
+            const materialDiv = document.createElement('div');
+            materialDiv.className = 'material-item';
+            materialDiv.innerHTML = `
+                <input type="text" class="form-control" placeholder="اسم المادة" style="width: 60%; display: inline-block;">
+                <input type="number" class="form-control" placeholder="الكمية" style="width: 30%; display: inline-block; margin-right: 10px;">
+                <button type="button" class="btn btn-sm btn-danger" onclick="this.parentElement.remove()">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            container.appendChild(materialDiv);
+        }
+        
+        function addEditMaterialField() {
+            const container = document.getElementById('editMaterialsContainer');
+            const materialDiv = document.createElement('div');
+            materialDiv.className = 'material-item';
+            materialDiv.innerHTML = `
+                <input type="text" class="form-control" placeholder="اسم المادة" style="width: 60%; display: inline-block;">
+                <input type="number" class="form-control" placeholder="الكمية" style="width: 30%; display: inline-block; margin-right: 10px;">
+                <button type="button" class="btn btn-sm btn-danger" onclick="this.parentElement.remove()">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            container.appendChild(materialDiv);
+        }
+        
+        function resetAllData() {
+            if (!db) {
+                showConnectionStatus('❌ قاعدة البيانات غير مهيأة', false);
+                return;
+            }
+            
+            if (confirm('هل أنت متأكد من إعادة تعيين جميع البيانات؟ هذا الإجراء لا يمكن التراجع عنه!')) {
+                db.collection('tasks').get()
+                    .then(querySnapshot => {
+                        const batch = db.batch();
+                        querySnapshot.forEach(doc => {
+                            batch.delete(doc.ref);
+                        });
+                        
+                        return batch.commit();
+                    })
+                    .then(() => {
+                        showConnectionStatus('✅ تمت إعادة تعيين البيانات بنجاح', true);
+                        loadTasks();
+                    })
+                    .catch(error => {
+                        console.error('Error resetting data:', error);
+                        showConnectionStatus(`❌ خطأ في إعادة تعيين البيانات: ${error.message}`, false);
+                    });
+            }
+        }
+        
+        function exportReports(format) {
+            alert(`تصدير التقارير بصيغة ${format.toUpperCase()}`);
+        }
+        
+        function printReports() {
+            window.print();
+        }
+        
+        function resetReports() {
+            if (confirm('هل أنت متأكد من إعادة تعيين التقارير؟')) {
+                document.getElementById('report-from-date').value = '';
+                document.getElementById('report-to-date').value = '';
+                alert('✅ تمت إعادة تعيين التقارير بنجاح!');
+            }
+        }
+        
+        // التعامل مع تحميل الصورة
+        document.getElementById('taskImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('imagePreview').src = event.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                document.getElementById('imagePreview').style.display = 'none';
+            }
+        });
+        
+        // التعامل مع تحميل الصورة في نموذج التعديل
+        document.getElementById('editTaskImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('editImagePreview').src = event.target.result;
+                    document.getElementById('editImagePreview').style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                document.getElementById('editImagePreview').style.display = 'none';
+            }
+        });
+        
+        // تعيين التاريخ الحالي في نموذج إكمال المهمة
+        document.getElementById('completionDate').value = new Date().toISOString().split('T')[0];
+        
+        // تفعيل التبويبات والبدء بالتطبيق
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 تم تحميل الصفحة، بدء تهيئة التطبيق...');
+            
+            // تفعيل التبويبات
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+            
+            // تفعيل الشريط الجانبي
+            document.querySelectorAll('.sidebar-menu li').forEach(item => {
+                item.addEventListener('click', () => {
+                    document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    const tab = item.getAttribute('data-tab');
+                    if (tab) {
+                        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                        
+                        document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
+                        document.getElementById(`${tab}-tab`).classList.add('active');
+                    }
+                });
+            });
+            
+            // تحميل البيانات بعد التأكد من التهيئة
+            setTimeout(async () => {
+                console.log('🔍 التحقق من اتصال Firebase...');
+                const isConnected = await checkFirebaseConnection();
+                
+                if (isConnected) {
+                    loadTasks();
+                } else {
+                    document.getElementById('tasks-loader').style.display = 'none';
+                    document.getElementById('task-list').innerHTML = `
+                        <li class="task-item" style="text-align: center; color: var(--danger); padding: 30px;">
+                            <i class="fas fa-wifi-slash fa-3x"></i>
+                            <h4>تعذر الاتصال بقاعدة البيانات</h4>
+                            <p>يرجى التحقق من:</p>
+                            <ul style="text-align: right; direction: rtl;">
+                                <li>اتصال الإنترنت</li>
+                                <li>إعدادات Firebase</li>
+                                <li>قواعد الأمان في Firestore</li>
+                            </ul>
+                            <button class="btn btn-primary mt-3" onclick="loadTasks()">
+                                <i class="fas fa-redo"></i> إعادة المحاولة
+                            </button>
+                        </li>
+                    `;
+                    document.getElementById('task-list').style.display = 'block';
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
